@@ -1,0 +1,1124 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>집중하라곰! · 건전한 컴퓨터 사용 도우미</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-0:#0a0d0a;
+    --bg-1:#10140f;
+    --panel:#13180f;
+    --line:#2a3324;
+    --phosphor:#7CFF6B;
+    --phosphor-dim:#3d8f33;
+    --amber:#ffb627;
+    --danger:#ff4d4d;
+    --danger-dim:#5c1f1f;
+    --rest:#5fb8ff;
+    --text-hi:#eaffe6;
+    --text-mid:#9db89a;
+    --text-low:#52614e;
+    --mono:'JetBrains Mono', monospace;
+    --kr:'Noto Sans KR', sans-serif;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+
+  body{
+    background:radial-gradient(ellipse 120% 80% at 50% 0%, #161d12 0%, var(--bg-0) 60%);
+    color:var(--text-hi);
+    font-family:var(--kr);
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    overflow-x:hidden;
+    position:relative;
+  }
+
+  body::before{
+    content:'';
+    position:fixed; inset:0;
+    background:repeating-linear-gradient(to bottom, rgba(124,255,107,0.025) 0px, rgba(124,255,107,0.025) 1px, transparent 1px, transparent 3px);
+    pointer-events:none;
+    z-index:50;
+    mix-blend-mode:overlay;
+  }
+  body::after{
+    content:'';
+    position:fixed; inset:0;
+    background:radial-gradient(ellipse 140% 100% at 50% 50%, transparent 55%, rgba(0,0,0,0.55) 100%);
+    pointer-events:none;
+    z-index:49;
+  }
+  .noise{
+    position:fixed; inset:0; z-index:48; opacity:.035; pointer-events:none;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  header.top{
+    width:100%;
+    max-width:980px;
+    padding:28px 24px 0;
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    font-family:var(--mono);
+    z-index:2;
+  }
+  .brand{ display:flex; align-items:center; gap:10px; }
+  .brand-dot{
+    width:9px; height:9px; border-radius:50%;
+    background:var(--phosphor);
+    box-shadow:0 0 8px 2px rgba(124,255,107,.7);
+    animation:pulse 2.2s ease-in-out infinite;
+  }
+  @keyframes pulse{ 0%,100%{opacity:1;} 50%{opacity:.35;} }
+  .brand-name{ font-weight:700; letter-spacing:.14em; font-size:13px; color:var(--text-hi); }
+  .brand-sub{ font-size:10px; color:var(--text-low); letter-spacing:.1em; margin-top:2px; }
+  .clock{ text-align:right; font-size:11px; color:var(--text-mid); letter-spacing:.08em; }
+
+  main{
+    width:100%;
+    max-width:980px;
+    padding:36px 24px 60px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    z-index:2;
+    flex:1;
+  }
+
+  #setup-screen{ width:100%; display:flex; flex-direction:column; align-items:center; }
+
+  .eyebrow{
+    font-family:var(--mono);
+    font-size:11px;
+    letter-spacing:.22em;
+    color:var(--phosphor-dim);
+    text-transform:uppercase;
+    margin-bottom:14px;
+  }
+
+  h1{
+    font-family:var(--kr);
+    font-weight:900;
+    font-size:clamp(26px,4vw,38px);
+    line-height:1.3;
+    text-align:center;
+    margin:0 0 10px;
+    color:var(--text-hi);
+    letter-spacing:-0.01em;
+  }
+  h1 .accent{ color:var(--phosphor); }
+
+  .instruction{
+    font-size:14.5px;
+    color:var(--text-mid);
+    text-align:center;
+    max-width:560px;
+    line-height:1.7;
+    margin:0 0 26px;
+  }
+  .instruction strong{ color:var(--amber); font-weight:700; }
+
+  /* ---------- 카메라 권한 안내 카드 ---------- */
+  .permission-card{
+    width:100%;
+    max-width:560px;
+    border:1px solid var(--line);
+    border-radius:8px;
+    background:var(--panel);
+    padding:18px 20px;
+    margin-bottom:24px;
+    display:flex;
+    gap:14px;
+    align-items:flex-start;
+    transition:border-color .3s ease, background .3s ease;
+  }
+  .permission-card .perm-icon{
+    width:34px; height:34px;
+    flex-shrink:0;
+    border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    font-size:16px;
+    background:rgba(255,255,255,.05);
+    color:var(--text-mid);
+    transition:all .3s ease;
+  }
+  .permission-card .perm-body{ flex:1; }
+  .permission-card .perm-title{
+    font-family:var(--mono);
+    font-size:12.5px;
+    font-weight:700;
+    letter-spacing:.04em;
+    color:var(--text-hi);
+    margin:0 0 5px;
+  }
+  .permission-card .perm-desc{
+    font-size:12.5px;
+    color:var(--text-mid);
+    line-height:1.65;
+    margin:0;
+  }
+  .permission-card .perm-desc code{
+    font-family:var(--mono);
+    background:rgba(255,255,255,.06);
+    padding:1px 5px;
+    border-radius:3px;
+    font-size:11.5px;
+    color:var(--phosphor);
+  }
+  .permission-card.state-wait{ border-color:var(--line); }
+  .permission-card.state-wait .perm-icon{ background:rgba(255,182,39,.12); color:var(--amber); }
+
+  .permission-card.state-granted{ border-color:var(--phosphor-dim); }
+  .permission-card.state-granted .perm-icon{ background:rgba(124,255,107,.14); color:var(--phosphor); }
+
+  .permission-card.state-denied{ border-color:var(--danger); background:linear-gradient(135deg, rgba(255,77,77,.08), var(--panel) 60%); }
+  .permission-card.state-denied .perm-icon{ background:rgba(255,77,77,.16); color:var(--danger); }
+
+  .retry-btn{
+    margin-top:10px;
+  }
+
+  /* ---------- 카메라 박스 ---------- */
+  .camera-wrap{
+    width:100%;
+    max-width:760px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+  }
+
+  .start-btn-slot{
+    width:100%;
+    display:flex;
+    justify-content:center;
+    margin-bottom:14px;
+    min-height:54px;
+    align-items:center;
+  }
+
+  #btn-program-start{
+    font-family:var(--kr);
+    font-weight:900;
+    font-size:17px;
+    letter-spacing:-0.01em;
+    padding:15px 38px;
+    border-radius:8px;
+    border:1px solid var(--phosphor);
+    background:var(--phosphor);
+    color:#0a1308;
+    cursor:pointer;
+    box-shadow:0 0 0 0 rgba(124,255,107,.5);
+    animation:startPulse 2s ease-in-out infinite;
+    transition:transform .15s ease, box-shadow .15s ease;
+    display:none;
+  }
+  #btn-program-start.visible{ display:inline-flex; align-items:center; gap:8px; }
+  #btn-program-start:hover{ transform:translateY(-1px); }
+  #btn-program-start:active{ transform:translateY(0); }
+  @keyframes startPulse{
+    0%,100%{ box-shadow:0 0 0 0 rgba(124,255,107,.45); }
+    50%{ box-shadow:0 0 0 10px rgba(124,255,107,0); }
+  }
+
+  .camera-stage{
+    position:relative;
+    width:100%;
+    max-width:760px;
+    aspect-ratio:4/3;
+    background:#000;
+    border:1px solid var(--line);
+    border-radius:6px;
+    overflow:hidden;
+    box-shadow:0 0 0 1px rgba(124,255,107,.06), 0 30px 60px -30px rgba(0,0,0,.8);
+  }
+  #cam-video{
+    position:absolute; inset:0;
+    width:100%; height:100%;
+    object-fit:cover;
+    transform:scaleX(-1);
+  }
+  .camera-placeholder{
+    position:absolute; inset:0;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    gap:14px;
+    color:var(--text-low);
+    font-family:var(--mono);
+    font-size:12px;
+    letter-spacing:.06em;
+    text-align:center;
+    z-index:3;
+    background:var(--bg-1);
+    padding:0 20px;
+  }
+  .camera-placeholder svg{ width:46px; height:46px; opacity:.5; }
+
+  /* 풀배열 키보드 실측 비율(약 440mm x 140mm ≈ 3.14:1) 가이드 박스 */
+  .guide-frame{
+    position:absolute;
+    left:50%; top:58%;
+    transform:translate(-50%,-50%);
+    width:82%;
+    aspect-ratio:3.14/1;
+    max-height:62%;
+    border:2px dashed var(--phosphor-dim);
+    border-radius:8px;
+    z-index:4;
+    pointer-events:none;
+  }
+  .guide-frame::before{
+    content:'풀배열 키보드 가이드 (약 440 × 140mm)';
+    position:absolute;
+    top:-24px; left:0;
+    font-family:var(--mono);
+    font-size:10px;
+    letter-spacing:.05em;
+    color:var(--phosphor-dim);
+    white-space:nowrap;
+  }
+  .guide-frame .corner{ position:absolute; width:16px; height:16px; color:var(--phosphor-dim); }
+  .guide-frame .c-tl{top:-2px;left:-2px;border-top:3px solid currentColor;border-left:3px solid currentColor;}
+  .guide-frame .c-tr{top:-2px;right:-2px;border-top:3px solid currentColor;border-right:3px solid currentColor;}
+  .guide-frame .c-bl{bottom:-2px;left:-2px;border-bottom:3px solid currentColor;border-left:3px solid currentColor;}
+  .guide-frame .c-br{bottom:-2px;right:-2px;border-bottom:3px solid currentColor;border-right:3px solid currentColor;}
+
+  .scan-status{
+    position:absolute;
+    bottom:14px; left:14px; right:14px;
+    z-index:5;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    font-family:var(--mono);
+    font-size:11px;
+    letter-spacing:.05em;
+  }
+  .rec-badge{
+    display:flex; align-items:center; gap:6px;
+    background:rgba(0,0,0,.55);
+    border:1px solid var(--line);
+    padding:5px 10px;
+    border-radius:4px;
+    color:var(--text-mid);
+  }
+  .rec-dot{
+    width:7px;height:7px;border-radius:50%;
+    background:var(--text-low);
+    transition:background .3s ease, box-shadow .3s ease;
+  }
+  .rec-dot.active{
+    background:var(--phosphor);
+    box-shadow:0 0 6px 2px rgba(124,255,107,.6);
+    animation:pulse 1.4s ease-in-out infinite;
+  }
+  .hint-pill{
+    background:rgba(0,0,0,.55);
+    border:1px solid var(--line);
+    padding:5px 10px;
+    border-radius:4px;
+    color:var(--text-mid);
+  }
+
+  .controls-row{
+    margin-top:18px;
+    display:flex;
+    gap:12px;
+    align-items:center;
+    flex-wrap:wrap;
+    justify-content:center;
+  }
+
+  button{
+    font-family:var(--mono);
+    cursor:pointer;
+    border-radius:5px;
+    border:1px solid var(--line);
+    background:var(--panel);
+    color:var(--text-mid);
+    padding:12px 20px;
+    font-size:12.5px;
+    letter-spacing:.08em;
+    transition:all .2s ease;
+  }
+  button:hover{ border-color:var(--phosphor-dim); color:var(--text-hi); }
+  button:focus-visible{ outline:2px solid var(--phosphor); outline-offset:2px; }
+  button:disabled{ opacity:.4; cursor:not-allowed; }
+
+  .btn-primary{
+    background:var(--phosphor);
+    color:#0a1308;
+    border-color:var(--phosphor);
+    font-weight:700;
+  }
+  .btn-primary:hover{ background:#9bff8e; color:#0a1308; box-shadow:0 0 20px rgba(124,255,107,.35); }
+
+  .model-config{
+    margin-top:26px;
+    width:100%;
+    max-width:560px;
+    border:1px solid var(--line);
+    border-radius:6px;
+    background:rgba(19,24,15,.6);
+    padding:16px 18px;
+  }
+  .model-config summary{
+    font-family:var(--mono);
+    font-size:11.5px;
+    color:var(--text-mid);
+    letter-spacing:.08em;
+    cursor:pointer;
+    list-style:none;
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .model-config summary::-webkit-details-marker{ display:none; }
+  .model-config summary::before{ content:'▸'; color:var(--phosphor-dim); transition:transform .2s ease; }
+  .model-config[open] summary::before{ transform:rotate(90deg); }
+  .model-config .body{ margin-top:14px; display:flex; flex-direction:column; gap:10px; }
+  .model-config label{ font-family:var(--mono); font-size:10.5px; color:var(--text-low); letter-spacing:.05em; }
+  .model-config input[type=text]{
+    width:100%;
+    background:var(--bg-0);
+    border:1px solid var(--line);
+    color:var(--text-hi);
+    font-family:var(--mono);
+    font-size:12px;
+    padding:9px 10px;
+    border-radius:4px;
+  }
+  .model-config input[type=text]:focus{ outline:1px solid var(--phosphor-dim); }
+  .model-config input[type=file]{
+    width:100%;
+    background:var(--bg-0);
+    border:1px solid var(--line);
+    color:var(--text-mid);
+    font-family:var(--mono);
+    font-size:11px;
+    padding:8px 10px;
+    border-radius:4px;
+  }
+  .model-config .hint{ font-size:11px; color:var(--text-low); line-height:1.6; }
+  .model-config .hint a{ color:var(--phosphor-dim); text-decoration:underline; }
+  .model-status-line{ font-family:var(--mono); font-size:11px; margin-top:6px; color:var(--text-low); }
+  .model-status-line.ok{ color:var(--phosphor); }
+  .model-status-line.err{ color:var(--danger); }
+
+  /* ---------- 라이브 모니터링 화면 ---------- */
+  #live-screen{ display:none; width:100%; flex-direction:column; align-items:center; }
+  #live-screen.show{ display:flex; }
+
+  .live-banner{
+    width:100%;
+    max-width:760px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:16px;
+    font-family:var(--mono);
+    font-size:12px;
+    color:var(--text-mid);
+    letter-spacing:.05em;
+    flex-wrap:wrap;
+    gap:8px;
+  }
+  .live-banner .tag{ display:flex; align-items:center; gap:8px; }
+
+  .big-status-card{
+    width:100%;
+    max-width:760px;
+    border-radius:8px;
+    border:1px solid var(--line);
+    padding:30px 28px;
+    display:flex;
+    align-items:center;
+    gap:22px;
+    background:var(--panel);
+    transition:background .4s ease, border-color .4s ease;
+  }
+  .status-icon{
+    width:58px; height:58px;
+    border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    flex-shrink:0;
+    font-size:26px;
+    transition:all .4s ease;
+  }
+  .status-text-group h2{ margin:0 0 4px; font-family:var(--kr); font-weight:900; font-size:24px; letter-spacing:-0.01em; }
+  .status-text-group p{ margin:0; font-family:var(--mono); font-size:12px; color:var(--text-mid); letter-spacing:.03em; }
+
+  .big-status-card.state-game{
+    border-color:var(--danger);
+    background:linear-gradient(135deg, rgba(255,77,77,.12), var(--panel) 60%);
+    animation:alarm 1.1s ease-in-out infinite;
+  }
+  @keyframes alarm{ 0%,100%{ box-shadow:0 0 0 0 rgba(255,77,77,0); } 50%{ box-shadow:0 0 0 8px rgba(255,77,77,.08); } }
+  .big-status-card.state-game .status-icon{ background:rgba(255,77,77,.18); color:var(--danger); }
+  .big-status-card.state-game h2{ color:var(--danger); }
+
+  .big-status-card.state-clean{ border-color:var(--phosphor-dim); background:linear-gradient(135deg, rgba(124,255,107,.08), var(--panel) 60%); }
+  .big-status-card.state-clean .status-icon{ background:rgba(124,255,107,.16); color:var(--phosphor); }
+  .big-status-card.state-clean h2{ color:var(--phosphor); }
+
+  .big-status-card.state-rest{ border-color:#2c4a66; background:linear-gradient(135deg, rgba(95,184,255,.08), var(--panel) 60%); }
+  .big-status-card.state-rest .status-icon{ background:rgba(95,184,255,.14); color:var(--rest); }
+  .big-status-card.state-rest h2{ color:var(--rest); }
+
+  .big-status-card.state-idle{ border-color:var(--line); }
+  .big-status-card.state-idle .status-icon{ background:rgba(255,255,255,.05); color:var(--text-low); }
+  .big-status-card.state-idle h2{ color:var(--text-mid); }
+
+  .meter-row{
+    width:100%;
+    max-width:760px;
+    margin-top:18px;
+    display:grid;
+    grid-template-columns:1fr 1fr 1fr;
+    gap:10px;
+  }
+  .meter{ background:var(--panel); border:1px solid var(--line); border-radius:6px; padding:12px 14px; }
+  .meter .label{ font-family:var(--mono); font-size:10px; letter-spacing:.08em; color:var(--text-low); margin-bottom:8px; display:flex; justify-content:space-between; }
+  .meter .bar-track{ height:6px; border-radius:4px; background:var(--bg-0); overflow:hidden; }
+  .meter .bar-fill{ height:100%; width:0%; border-radius:4px; transition:width .25s ease; }
+  .meter.game .bar-fill{ background:var(--danger); }
+  .meter.clean .bar-fill{ background:var(--phosphor); }
+  .meter.rest .bar-fill{ background:var(--rest); }
+
+  .pip-source-wrap{ position:absolute; width:1px; height:1px; overflow:hidden; opacity:0; pointer-events:none; }
+
+  footer{
+    width:100%;
+    max-width:980px;
+    padding:0 24px 30px;
+    text-align:center;
+    font-family:var(--mono);
+    font-size:10.5px;
+    color:var(--text-low);
+    letter-spacing:.06em;
+    z-index:2;
+  }
+
+  @media (max-width:640px){
+    .meter-row{ grid-template-columns:1fr; }
+    .big-status-card{ flex-direction:column; text-align:center; }
+    .guide-frame{ width:90%; }
+  }
+
+  .visually-hidden{ position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); }
+</style>
+</head>
+<body>
+<div class="noise" aria-hidden="true"></div>
+
+<header class="top">
+  <div class="brand">
+    <div class="brand-dot" id="brand-dot"></div>
+    <div>
+      <div class="brand-name">집중하라곰!</div>
+      <div class="brand-sub">건전한 컴퓨터 사용 도우미</div>
+    </div>
+  </div>
+  <div class="clock" id="clock">--:--:--</div>
+</header>
+
+<main>
+
+  <!-- ============ 1) 셋업 화면 ============ -->
+  <section id="setup-screen">
+    <div class="eyebrow">STEP 01 · CAMERA SETUP</div>
+    <h1>카메라에 <span class="accent">키보드</span>를<br/>맞춰주세요</h1>
+    <p class="instruction">
+      <strong>카메라에 키보드를 아래 박스 위치에 맞추어 각도를 조정해 주세요.</strong><br/>
+      풀배열 키보드 전체가 점선 박스 안에 들어오면, 박스 위 "프로그램 시작!" 버튼을 눌러 모니터링을 시작하세요.
+    </p>
+
+    <!-- 카메라 권한 안내 카드 -->
+    <div class="permission-card state-wait" id="permission-card">
+      <div class="perm-icon" id="perm-icon">●</div>
+      <div class="perm-body">
+        <p class="perm-title" id="perm-title">카메라 권한이 필요합니다</p>
+        <p class="perm-desc" id="perm-desc">
+          "카메라 시작" 버튼을 누르면 브라우저가 카메라 접근 권한을 요청합니다.
+          나타나는 팝업에서 <code>허용</code>을 눌러주세요. 영상은 브라우저 안에서만 분석되고 외부로 전송되지 않습니다.
+        </p>
+      </div>
+    </div>
+
+    <div class="camera-wrap">
+      <div class="start-btn-slot">
+        <button class="btn-primary" id="btn-program-start">🟢 프로그램 시작!</button>
+      </div>
+
+      <div class="camera-stage" id="camera-stage">
+        <video id="cam-video" autoplay playsinline muted></video>
+
+        <div class="camera-placeholder" id="camera-placeholder">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 7l4-4h10l4 4v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V7z"/><circle cx="12" cy="13" r="3.5"/></svg>
+          <span>카메라가 꺼져 있습니다<br/>아래 버튼을 눌러 카메라를 시작하세요</span>
+        </div>
+
+        <div class="guide-frame" id="guide-frame">
+          <span class="corner c-tl"></span>
+          <span class="corner c-tr"></span>
+          <span class="corner c-bl"></span>
+          <span class="corner c-br"></span>
+        </div>
+
+        <div class="scan-status">
+          <div class="rec-badge"><span class="rec-dot" id="rec-dot"></span><span id="rec-label">대기중</span></div>
+          <div class="hint-pill" id="hint-pill">키보드를 박스에 맞춰주세요</div>
+        </div>
+      </div>
+
+      <div class="controls-row">
+        <button class="btn-primary" id="btn-start-camera">카메라 시작</button>
+      </div>
+    </div>
+
+    <details class="model-config" id="model-config">
+      <summary>Teachable Machine 모델 설정</summary>
+      <div class="body">
+        <label for="model-url">모델 URL (Export → Tensorflow.js → 공유 가능한 링크)</label>
+        <input type="text" id="model-url" placeholder="예: https://teachablemachine.withgoogle.com/models/XXXXXXXXX/" />
+        <div class="hint">
+          Teachable Machine에서 <strong style="color:var(--text-mid)">이미지 프로젝트</strong>로 '게임중' / '건전히사용중' / '휴식중' 3개 클래스를 학습한 뒤,
+          Export 탭에서 Tensorflow.js → Upload(공유 가능한 링크)로 받은 URL을 붙여넣으세요.
+          <a href="https://teachablemachine.withgoogle.com/" target="_blank" rel="noopener">teachablemachine.withgoogle.com</a>
+        </div>
+        <button id="btn-load-model" type="button" style="align-self:flex-start;">모델 불러오기</button>
+        <div class="model-status-line" id="model-status-line">모델이 로드되지 않았습니다. URL을 입력해 주세요.</div>
+      </div>
+    </details>
+
+  </section>
+
+  <!-- ============ 2) 라이브 모니터링 화면 ============ -->
+  <section id="live-screen">
+    <div class="eyebrow">STEP 02 · LIVE MONITORING</div>
+    <h1>모니터링 <span class="accent">진행중</span></h1>
+    <p class="instruction">
+      프로그램이 시작되어 PIP 창이 열렸습니다. 다른 작업을 하는 동안에도 손가락 위치 상태가 계속 표시됩니다.
+    </p>
+
+    <div class="live-banner">
+      <div class="tag"><span class="rec-dot active"></span> LIVE</div>
+      <div id="live-fps">분류 주기: 500ms</div>
+      <button id="btn-open-pip">PIP 창 다시 띄우기</button>
+    </div>
+
+    <div class="big-status-card state-idle" id="status-card">
+      <div class="status-icon" id="status-icon">○</div>
+      <div class="status-text-group">
+        <h2 id="status-title">분석 대기중</h2>
+        <p id="status-desc">손을 키보드 위에 올려주세요</p>
+      </div>
+    </div>
+
+    <div class="meter-row">
+      <div class="meter game">
+        <div class="label"><span>게임중</span><span id="pct-game">0%</span></div>
+        <div class="bar-track"><div class="bar-fill" id="bar-game"></div></div>
+      </div>
+      <div class="meter clean">
+        <div class="label"><span>건전히 사용중</span><span id="pct-clean">0%</span></div>
+        <div class="bar-track"><div class="bar-fill" id="bar-clean"></div></div>
+      </div>
+      <div class="meter rest">
+        <div class="label"><span>휴식중</span><span id="pct-rest">0%</span></div>
+        <div class="bar-track"><div class="bar-fill" id="bar-rest"></div></div>
+      </div>
+    </div>
+
+    <div class="controls-row">
+      <button id="btn-back-setup">카메라 재정렬</button>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  집중하라곰! · 모든 분석은 브라우저 내에서만 처리되며 영상은 외부로 전송되지 않습니다.
+</footer>
+
+<!-- PIP 합성용 캔버스 / 비디오 (화면에는 보이지 않음, PIP로만 노출) -->
+<div class="pip-source-wrap">
+  <canvas id="pip-canvas" width="1280" height="360"></canvas>
+  <video id="pip-video" autoplay playsinline muted></video>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.3.1/dist/tf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@0.8/dist/teachablemachine-image.min.js"></script>
+<script>
+(function(){
+  "use strict";
+
+  /* ---------------- 시계 ---------------- */
+  const clockEl = document.getElementById('clock');
+  function tickClock(){
+    clockEl.textContent = new Date().toLocaleTimeString('ko-KR', { hour12:false });
+  }
+  tickClock();
+  setInterval(tickClock, 1000);
+
+  /* ---------------- 엘리먼트 참조 ---------------- */
+  const video = document.getElementById('cam-video');
+  const placeholder = document.getElementById('camera-placeholder');
+  const recDot = document.getElementById('rec-dot');
+  const recLabel = document.getElementById('rec-label');
+  const hintPill = document.getElementById('hint-pill');
+
+  const permissionCard = document.getElementById('permission-card');
+  const permIcon = document.getElementById('perm-icon');
+  const permTitle = document.getElementById('perm-title');
+  const permDesc = document.getElementById('perm-desc');
+
+  const btnStartCamera = document.getElementById('btn-start-camera');
+  const btnProgramStart = document.getElementById('btn-program-start');
+  const btnLoadModel = document.getElementById('btn-load-model');
+  const modelUrlInput = document.getElementById('model-url');
+  const modelStatusLine = document.getElementById('model-status-line');
+  const modelConfig = document.getElementById('model-config');
+
+  const setupScreen = document.getElementById('setup-screen');
+  const liveScreen = document.getElementById('live-screen');
+
+  const statusCard = document.getElementById('status-card');
+  const statusIcon = document.getElementById('status-icon');
+  const statusTitle = document.getElementById('status-title');
+  const statusDesc = document.getElementById('status-desc');
+
+  const pctGame = document.getElementById('pct-game');
+  const pctClean = document.getElementById('pct-clean');
+  const pctRest = document.getElementById('pct-rest');
+  const barGame = document.getElementById('bar-game');
+  const barClean = document.getElementById('bar-clean');
+  const barRest = document.getElementById('bar-rest');
+
+  const btnOpenPip = document.getElementById('btn-open-pip');
+  const btnBackSetup = document.getElementById('btn-back-setup');
+
+  const pipCanvas = document.getElementById('pip-canvas');
+  const pipCtx = pipCanvas.getContext('2d');
+  const pipVideo = document.getElementById('pip-video');
+
+  /* ---------------- 상태 ---------------- */
+  let stream = null;
+  let model = null;
+  let classifyTimer = null;
+  let isLive = false;
+
+  const LABEL_MAP = {
+    game: ['게임', 'game'],
+    clean: ['건전', 'clean', 'normal', 'typing'],
+    rest: ['휴식', 'rest', 'idle']
+  };
+  function matchLabelKey(rawLabel){
+    const lower = rawLabel.toLowerCase();
+    for (const key in LABEL_MAP){
+      if (LABEL_MAP[key].some(k => lower.includes(k.toLowerCase()))) return key;
+    }
+    return null;
+  }
+
+  /* ---------------- 권한 카드 상태 갱신 ---------------- */
+  function setPermissionState(state, message){
+    permissionCard.className = 'permission-card state-' + state;
+    if (state === 'wait'){
+      permIcon.textContent = '●';
+      permTitle.textContent = '카메라 권한이 필요합니다';
+      permDesc.innerHTML = '"카메라 시작" 버튼을 누르면 브라우저가 카메라 접근 권한을 요청합니다. 나타나는 팝업에서 <code>허용</code>을 눌러주세요. 영상은 브라우저 안에서만 분석되고 외부로 전송되지 않습니다.';
+    } else if (state === 'asking'){
+      permIcon.textContent = '…';
+      permTitle.textContent = '권한 요청 중...';
+      permDesc.innerHTML = '브라우저 상단(또는 주소창 왼쪽)에 권한 요청 팝업이 떴는지 확인해 주세요. 팝업이 보이지 않으면 주소창의 카메라 아이콘을 눌러 직접 설정할 수 있습니다.';
+    } else if (state === 'granted'){
+      permIcon.textContent = '✓';
+      permTitle.textContent = '카메라 권한이 허용되었습니다';
+      permDesc.innerHTML = '카메라가 정상적으로 연결되었습니다. 이제 키보드를 점선 박스 안에 맞춰주세요.';
+    } else if (state === 'denied'){
+      permIcon.textContent = '✕';
+      permTitle.textContent = '카메라 권한이 거부되었습니다';
+      permDesc.innerHTML = (message || '브라우저가 카메라 접근을 차단했습니다.') +
+        ' 주소창 왼쪽의 자물쇠(또는 카메라) 아이콘을 눌러 <code>카메라 허용</code>으로 변경한 뒤, 페이지를 새로고침하고 다시 시도해 주세요.';
+    } else if (state === 'unsupported'){
+      permIcon.textContent = '✕';
+      permTitle.textContent = '카메라를 사용할 수 없는 환경입니다';
+      permDesc.innerHTML = '이 브라우저 또는 페이지 환경(예: http:// 비보안 주소)에서는 카메라 접근이 차단됩니다. <code>https://</code> 주소 또는 <code>localhost</code>에서 열어주세요.';
+    }
+  }
+
+  /* ---------------- 카메라 시작 ---------------- */
+  async function startCamera(){
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
+      setPermissionState('unsupported');
+      return;
+    }
+    setPermissionState('asking');
+    btnStartCamera.disabled = true;
+    btnStartCamera.textContent = '권한 요청중...';
+
+    try{
+      stream = await navigator.mediaDevices.getUserMedia({
+        video: { width:{ ideal:1280 }, height:{ ideal:960 }, facingMode:'environment' },
+        audio:false
+      });
+      video.srcObject = stream;
+      pipVideo.srcObject = stream;
+      placeholder.style.display = 'none';
+      btnStartCamera.textContent = '카메라 작동중';
+      recLabel.textContent = '카메라 ON';
+      recDot.classList.add('active');
+      hintPill.textContent = '키보드를 박스에 맞춰주세요';
+
+      setPermissionState('granted');
+
+      // 자동 정렬 판단 없이, 카메라가 켜지면 즉시 시작 버튼 활성화
+      btnProgramStart.classList.add('visible');
+    }catch(err){
+      console.error(err);
+      btnStartCamera.disabled = false;
+      btnStartCamera.textContent = '카메라 시작';
+      if (err && (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError')){
+        setPermissionState('denied', '권한 요청을 거부하셨습니다.');
+      } else if (err && err.name === 'NotFoundError'){
+        setPermissionState('denied', '사용 가능한 카메라 장치를 찾지 못했습니다.');
+      } else {
+        setPermissionState('denied', '알 수 없는 오류로 카메라에 접근하지 못했습니다 (' + (err && err.message ? err.message : err) + ').');
+      }
+      placeholder.querySelector('span').innerHTML = '카메라 접근에 실패했습니다.<br/>위 안내를 확인한 뒤 다시 시도해 주세요.';
+    }
+  }
+  btnStartCamera.addEventListener('click', startCamera);
+
+  /* ---------------- Teachable Machine 모델 로드 ---------------- */
+  async function loadModel(){
+    const base = modelUrlInput.value.trim();
+    if (!base){
+      modelStatusLine.textContent = '모델 URL을 먼저 입력해 주세요.';
+      modelStatusLine.className = 'model-status-line err';
+      return;
+    }
+    const normalized = base.endsWith('/') ? base : base + '/';
+    const modelURL = normalized + 'model.json';
+    const metadataURL = normalized + 'metadata.json';
+
+    modelStatusLine.textContent = '모델을 불러오는 중...';
+    modelStatusLine.className = 'model-status-line';
+
+    try{
+      model = await tmImage.load(modelURL, metadataURL);
+      modelStatusLine.textContent = `모델 로드 완료 (${model.getTotalClasses()}개 클래스 인식됨)`;
+      modelStatusLine.className = 'model-status-line ok';
+      modelConfig.removeAttribute('open');
+    }catch(err){
+      console.error(err);
+      modelStatusLine.textContent = '모델을 불러오지 못했습니다. URL을 다시 확인해 주세요.';
+      modelStatusLine.className = 'model-status-line err';
+    }
+  }
+  btnLoadModel.addEventListener('click', loadModel);
+
+  /* ---------------- PIP 곰 이미지 ----------------
+     ★★★ 곰 이미지를 여기에 연결하세요 ★★★
+     아래 세 줄의 빈 문자열('') 자리에 이미지 경로(또는 URL)를 넣어주세요.
+     예) clean: 'images/bear-clean.png'
+     비워두면(빈 문자열) 자동으로 이모지(🐻/🎮/😴)로 대체되어 표시됩니다. */
+  const BEAR_IMAGE_PATHS = {
+    clean: 'c:\\Users\\user\\Desktop\\ai_teachable_20510\\건전히사용중.png',   // ← 여기에 "건전히 사용중" 상태일 때 보여줄 곰 이미지 경로 입력
+    game:  'c:\\Users\\user\\Desktop\\ai_teachable_20510\\게임중.png',   // ← 여기에 "게임중" 상태일 때 보여줄 곰 이미지 경로 입력
+    rest:  '"C:\\Users\\user\\Desktop\\ai_teachable_20510\\휴식중.png"',   // ← 여기에 "휴식중" 상태일 때 보여줄 곰 이미지 경로 입력
+  };
+
+  // 상태별로 Image() 객체를 미리 만들어 캔버스에 그릴 때 사용한다.
+  // 경로가 비어있거나 로드에 실패하면 null로 남아 이모지로 자동 대체된다.
+  const bearImages = { clean:null, game:null, rest:null };
+
+  Object.keys(BEAR_IMAGE_PATHS).forEach((stateKey)=>{
+    const path = BEAR_IMAGE_PATHS[stateKey];
+    if (!path) return; // 경로를 안 넣었으면 로드 시도하지 않음 (이모지로 대체)
+    const img = new Image();
+    img.onload = () => { bearImages[stateKey] = img; };
+    img.onerror = () => { console.warn(`곰 이미지 로드 실패 (${stateKey}): ${path}`); };
+    img.src = path;
+  });
+
+  /* ---------------- "프로그램 시작!" 버튼 ----------------
+     자동 정렬 판단 없이, 사용자가 직접 박스에 맞췄다고 판단하고 누르는 버튼.
+     누르면 분류 루프 시작 + 실제 화면 전환 + PIP 자동 오픈 */
+  btnProgramStart.addEventListener('click', async ()=>{
+    if (!model){
+      modelConfig.setAttribute('open','');
+      modelStatusLine.textContent = '먼저 Teachable Machine 모델 URL을 입력하고 불러와 주세요.';
+      modelStatusLine.className = 'model-status-line err';
+      modelConfig.scrollIntoView({ behavior:'smooth', block:'center' });
+      return;
+    }
+    switchToLive();
+    await openRealPip();
+  });
+
+  /* ---------------- 화면 전환: 셋업 → 라이브 모니터링 ---------------- */
+  function switchToLive(){
+    if (isLive) return;
+    isLive = true;
+    setupScreen.style.display = 'none';
+    liveScreen.classList.add('show');
+    startClassifyLoop();
+  }
+
+  btnBackSetup.addEventListener('click', ()=>{
+    isLive = false;
+    liveScreen.classList.remove('show');
+    setupScreen.style.display = 'flex';
+    if (classifyTimer){ clearInterval(classifyTimer); classifyTimer = null; }
+  });
+
+  /* ---------------- 분류 루프 (라이브 화면) ---------------- */
+  let lastState = 'idle';
+
+  function startClassifyLoop(){
+    if (classifyTimer) return;
+    classifyTimer = setInterval(async ()=>{
+      if (!model || video.readyState < 2) return;
+      try{
+        const preds = await model.predict(video);
+        const result = { game:0, clean:0, rest:0 };
+        preds.forEach(p=>{
+          const key = matchLabelKey(p.className);
+          if (key) result[key] = p.probability;
+        });
+
+        updateMeters(result);
+
+        const top = Object.keys(result).reduce((a,b)=> result[b] > result[a] ? b : a);
+        applyState(top, result[top]);
+        drawPipFrame(top, result);
+      }catch(e){
+        console.error('predict error', e);
+      }
+    }, 500);
+  }
+
+  function updateMeters(result){
+    pctGame.textContent = Math.round(result.game*100) + '%';
+    pctClean.textContent = Math.round(result.clean*100) + '%';
+    pctRest.textContent = Math.round(result.rest*100) + '%';
+    barGame.style.width = (result.game*100) + '%';
+    barClean.style.width = (result.clean*100) + '%';
+    barRest.style.width = (result.rest*100) + '%';
+  }
+
+  const STATE_INFO = {
+    game:  { title:'⚠ 게임중',        desc:'WASD / 방향키 패턴이 감지되었습니다.', icon:'⚠', cls:'state-game',
+             pipPhrase:'집중하라곰!', pipSub:'게임중 · 경고', emoji:'🎮', color:'#ff4d4d' },
+    clean: { title:'건전히 사용중',     desc:'홈 로우(ASDF JKL;) 타이핑 패턴입니다.', icon:'✓', cls:'state-clean',
+             pipPhrase:'잘하고 있다곰', pipSub:'건전히 사용중', emoji:'🐻', color:'#7CFF6B' },
+    rest:  { title:'휴식중',           desc:'키보드 위에 손이 없습니다.',             icon:'–', cls:'state-rest',
+             pipPhrase:'쉬고오라곰', pipSub:'휴식중', emoji:'😴', color:'#5fb8ff' },
+  };
+
+  function applyState(stateKey, confidence){
+    if (confidence < 0.4) stateKey = 'idle';
+    if (stateKey === lastState) return;
+    lastState = stateKey;
+
+    statusCard.className = 'big-status-card ' + (STATE_INFO[stateKey] ? STATE_INFO[stateKey].cls : 'state-idle');
+    if (STATE_INFO[stateKey]){
+      statusIcon.textContent = STATE_INFO[stateKey].icon;
+      statusTitle.textContent = STATE_INFO[stateKey].title;
+      statusDesc.textContent = STATE_INFO[stateKey].desc;
+    } else {
+      statusIcon.textContent = '○';
+      statusTitle.textContent = '분석 대기중';
+      statusDesc.textContent = '손을 키보드 위에 올려주세요';
+    }
+  }
+
+  /* ---------------- PIP 프레임 합성 ----------------
+     레이아웃: 상단(카메라 ON/OFF 표시) / 중앙(곰 이미지) / 하단(상태 문구)
+     게임중 상태에서는 화면 전체 빨간 점멸 + 패널 흔들림 + 텍스트 진동을 더한다. */
+  let pipFrameCount = 0;
+
+  function drawPipFrame(stateKey, result){
+    pipFrameCount++;
+    const w = pipCanvas.width, h = pipCanvas.height; // 1280 x 360 (디자인 기준 640x180의 2배)
+    const info = STATE_INFO[stateKey];
+    const isGame = stateKey === 'game';
+    const camOn = !!stream;
+
+    // 게임중일 때 패널 전체를 좌우로 살짝 흔든다 (위용위용)
+    let shakeX = 0;
+    if (isGame){
+      const t = pipFrameCount * 0.42;
+      shakeX = Math.sin(t) * 6; // ±6px (2배 캔버스 기준)
+    }
+
+    pipCtx.save();
+    pipCtx.translate(shakeX, 0);
+
+    /* ---- 배경 ---- */
+    const bgGrad = pipCtx.createRadialGradient(w/2, -h*0.2, w*0.1, w/2, h*0.5, w*0.75);
+    if (isGame){
+      bgGrad.addColorStop(0, '#2e1212');
+      bgGrad.addColorStop(1, '#0d0404');
+    } else if (stateKey === 'rest'){
+      bgGrad.addColorStop(0, '#122230');
+      bgGrad.addColorStop(1, '#0a0d0a');
+    } else if (stateKey === 'clean'){
+      bgGrad.addColorStop(0, '#16241a');
+      bgGrad.addColorStop(1, '#0a0d0a');
+    } else {
+      bgGrad.addColorStop(0, '#161d12');
+      bgGrad.addColorStop(1, '#0a0d0a');
+    }
+    pipCtx.fillStyle = bgGrad;
+    pipCtx.fillRect(-20, -20, w+40, h+40);
+
+    /* ---- 모서리 코너 마크 (장식) ---- */
+    pipCtx.strokeStyle = 'rgba(157,184,154,0.35)';
+    pipCtx.lineWidth = 2;
+    const cm = 22;
+    pipCtx.beginPath();
+    pipCtx.moveTo(16, 16+cm); pipCtx.lineTo(16,16); pipCtx.lineTo(16+cm,16);
+    pipCtx.moveTo(w-16-cm, h-16); pipCtx.lineTo(w-16, h-16); pipCtx.lineTo(w-16, h-16-cm);
+    pipCtx.stroke();
+
+    /* ---- 상단: 카메라 ON/OFF 인디케이터 + 브랜드 ---- */
+    const dotX = 28, dotY = 28, dotR = 8;
+    pipCtx.beginPath();
+    pipCtx.arc(dotX, dotY, dotR, 0, Math.PI*2);
+    pipCtx.fillStyle = camOn ? '#7CFF6B' : '#ff4d4d';
+    pipCtx.shadowColor = camOn ? 'rgba(124,255,107,0.8)' : 'rgba(255,77,77,0.8)';
+    pipCtx.shadowBlur = 10;
+    pipCtx.fill();
+    pipCtx.shadowBlur = 0;
+
+    pipCtx.font = '700 15px "JetBrains Mono", monospace';
+    pipCtx.textBaseline = 'middle';
+    pipCtx.fillStyle = '#9db89a';
+    pipCtx.fillText(camOn ? 'CAM ON' : 'CAM OFF', dotX + 18, dotY + 1);
+
+    pipCtx.font = '700 13px "JetBrains Mono", monospace';
+    pipCtx.fillStyle = '#52614e';
+    pipCtx.textAlign = 'right';
+    pipCtx.fillText('집중하라곰!', w - 24, dotY + 1);
+    pipCtx.textAlign = 'left';
+
+    /* ---- 중앙: 곰 이미지 (1:1) ---- */
+    const bearSize = 152;
+    const bearCx = w/2;
+    const bearCy = h*0.48;
+
+    // 글로우 링
+    const glow = pipCtx.createRadialGradient(bearCx, bearCy, 10, bearCx, bearCy, bearSize*0.75);
+    glow.addColorStop(0, (info ? info.color : '#9db89a') + '88');
+    glow.addColorStop(1, 'transparent');
+    pipCtx.fillStyle = glow;
+    pipCtx.beginPath();
+    pipCtx.arc(bearCx, bearCy, bearSize*0.75, 0, Math.PI*2);
+    pipCtx.fill();
+
+    const bearImg = info ? bearImages[stateKey] : null;
+    if (bearImg){
+      pipCtx.save();
+      pipCtx.shadowColor = 'rgba(0,0,0,0.5)';
+      pipCtx.shadowBlur = 14;
+      pipCtx.shadowOffsetY = 6;
+      pipCtx.drawImage(bearImg, bearCx - bearSize/2, bearCy - bearSize/2, bearSize, bearSize);
+      pipCtx.restore();
+    } else {
+      // 이미지가 없을 때: 점선 원 + 이모지로 자리만 표시
+      pipCtx.beginPath();
+      pipCtx.setLineDash([6,5]);
+      pipCtx.lineWidth = 2.5;
+      pipCtx.strokeStyle = '#52614e';
+      pipCtx.arc(bearCx, bearCy, bearSize/2, 0, Math.PI*2);
+      pipCtx.stroke();
+      pipCtx.setLineDash([]);
+
+      pipCtx.font = '64px sans-serif';
+      pipCtx.textAlign = 'center';
+      pipCtx.fillText(info ? info.emoji : '🐻', bearCx, bearCy + 6);
+      pipCtx.textAlign = 'left';
+    }
+
+    /* ---- 하단: 상태 문구 ---- */
+    let textShakeX = 0, textShakeY = 0;
+    if (isGame){
+      const jt = pipFrameCount * 0.9;
+      textShakeX = Math.sin(jt) * 1.2;
+      textShakeY = Math.cos(jt*1.3) * 1.2;
+    }
+
+    pipCtx.textAlign = 'center';
+    pipCtx.font = '900 34px "Noto Sans KR", sans-serif';
+    pipCtx.fillStyle = info ? info.color : '#9db89a';
+    pipCtx.fillText(
+      info ? info.pipPhrase : '분석 대기중',
+      bearCx + textShakeX, h - 46 + textShakeY
+    );
+
+    pipCtx.font = '500 14px "JetBrains Mono", monospace';
+    pipCtx.fillStyle = '#52614e';
+    pipCtx.fillText(info ? info.pipSub : '대기중', bearCx, h - 20);
+    pipCtx.textAlign = 'left';
+
+    pipCtx.restore(); // shakeX translate 해제
+
+    /* ---- 게임중 경고 오버레이 (화면 전체 빨간 점멸, 위용위용) ---- */
+    if (isGame){
+      const flashT = (Math.sin(pipFrameCount * 0.32) + 1) / 2; // 0~1
+      pipCtx.fillStyle = `rgba(255,40,40,${0.06 + flashT*0.28})`;
+      pipCtx.fillRect(0, 0, w, h);
+
+      // 테두리 경고 라인
+      pipCtx.strokeStyle = `rgba(255,77,77,${0.4 + flashT*0.6})`;
+      pipCtx.lineWidth = 6;
+      pipCtx.strokeRect(3, 3, w-6, h-6);
+    }
+  }
+
+  function pipPaintLoop(){
+    if (isLive && video.readyState >= 2){
+      drawPipFrame(lastState, { [lastState]: 1 });
+    }
+    requestAnimationFrame(pipPaintLoop);
+  }
+  requestAnimationFrame(pipPaintLoop);
+
+  /* ---------------- 실제 브라우저 PIP 창 띄우기 ---------------- */
+  let pipStream = null;
+
+  async function openRealPip(){
+    try{
+      if (!pipStream){
+        pipStream = pipCanvas.captureStream(20);
+      }
+      pipVideo.srcObject = pipStream;
+      await pipVideo.play();
+
+      if (document.pictureInPictureEnabled){
+        await pipVideo.requestPictureInPicture();
+      } else {
+        alert('이 브라우저는 Picture-in-Picture를 지원하지 않습니다. 화면 내 모니터링 카드로 계속 확인할 수 있습니다.');
+      }
+    }catch(err){
+      console.error('PIP 실패', err);
+      // PIP 실행이 막혀도(예: 자동재생 정책) 화면 내 모니터링은 계속 진행되도록 알럿만 표시
+      alert('PIP 창을 자동으로 열지 못했습니다. "PIP 창 다시 띄우기" 버튼을 눌러 다시 시도해 주세요.');
+    }
+  }
+  btnOpenPip.addEventListener('click', openRealPip);
+
+})();
+</script>
+</body>
+</html>
