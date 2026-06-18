@@ -1,1 +1,1 @@
-# Ai_TeachableMAchineProject-20510LYW
+https://teachablemachine.withgoogle.com/models/3WtjtzxBX/
