@@ -832,35 +832,35 @@
   btnLoadModel.addEventListener('click', loadModel);
   /* ---------------- 기본 모델 링크 복사 ----------------
    ★★★ 여기에 실제 Teachable Machine 링크를 넣어주세요 ★★★ */
-const PRESET_MODEL_URLS = {
-  notebook: 'https://teachablemachine.withgoogle.com/models/3WtjtzxBX/',
-  pc:       'https://teachablemachine.withgoogle.com/models/EwdhSWZW8/'
-};
+  const PRESET_MODEL_URLS = {
+    notebook: 'https://teachablemachine.withgoogle.com/models/3WtjtzxBX/',
+    pc:       'https://teachablemachine.withgoogle.com/models/EwdhSWZW8/'
+  };
 
-function copyPresetUrl(key){
-  const url = PRESET_MODEL_URLS[key];
-  const labelKo = key === 'notebook' ? '노트북' : 'PC';
+  function copyPresetUrl(key){
+    const url = PRESET_MODEL_URLS[key];
+    const labelKo = key === 'notebook' ? '노트북' : 'PC';
 
-  if (navigator.clipboard && navigator.clipboard.writeText){
-    navigator.clipboard.writeText(url).then(()=>{
-      modelStatusLine.textContent = labelKo + '용 기본 모델 링크가 복사되었습니다. 입력창에 붙여넣어 주세요.';
-      modelStatusLine.className = 'model-status-line ok';
-    }).catch(()=>{
+    if (navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(url).then(()=>{
+        modelStatusLine.textContent = labelKo + '용 기본 모델 링크가 복사되었습니다. 입력창에 붙여넣어 주세요.';
+        modelStatusLine.className = 'model-status-line ok';
+      }).catch(()=>{
       // 복사 실패 시 입력창에 바로 채워줌
       modelUrlInput.value = url;
       modelStatusLine.textContent = '클립보드 복사에 실패하여 입력창에 바로 채워넣었습니다.';
       modelStatusLine.className = 'model-status-line ok';
-    });
-  } else {
+      });
+    } else {
     // navigator.clipboard 미지원 브라우저 대비
-    modelUrlInput.value = url;
-    modelStatusLine.textContent = labelKo + '용 기본 모델 링크를 입력창에 채워넣었습니다.';
-    modelStatusLine.className = 'model-status-line ok';
+      modelUrlInput.value = url;
+      modelStatusLine.textContent = labelKo + '용 기본 모델 링크를 입력창에 채워넣었습니다.';
+      modelStatusLine.className = 'model-status-line ok';
+    }
   }
-}
 
-document.getElementById('btn-preset-notebook').addEventListener('click', ()=> copyPresetUrl('notebook'));
-document.getElementById('btn-preset-pc').addEventListener('click', ()=> copyPresetUrl('pc'));
+    document.getElementById('btn-preset-notebook').addEventListener('click', ()=> copyPresetUrl('notebook'));
+    document.getElementById('btn-preset-pc').addEventListener('click', ()=> copyPresetUrl('pc'));
 
   /* ---------------- PIP 곰 이미지 ----------------
      ★★★ 곰 이미지를 여기에 연결하세요 ★★★
