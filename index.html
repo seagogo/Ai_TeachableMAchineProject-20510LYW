@@ -588,6 +588,11 @@
       <div class="body">
         <label for="model-url">모델 URL (Export → Tensorflow.js → 공유 가능한 링크)</label>
         <input type="text" id="model-url" placeholder="예: https://teachablemachine.withgoogle.com/models/XXXXXXXXX/" />
+        <div class="preset-model-row" style="display:flex; gap:8px; flex-wrap:wrap;">
+          <button type="button" id="btn-preset-notebook">📋 기본 모델 링크 (노트북)</button>
+          <button type="button" id="btn-preset-pc">📋 기본 모델 링크 (PC)</button>
+        </div>
+        
         <div class="hint">
           Teachable Machine에서 <strong style="color:var(--text-mid)">이미지 프로젝트</strong>로 '게임중' / '건전히사용중' / '휴식중' 3개 클래스를 학습한 뒤,
           Export 탭에서 Tensorflow.js → Upload(공유 가능한 링크)로 받은 URL을 붙여넣으세요.
@@ -825,6 +830,37 @@
     }
   }
   btnLoadModel.addEventListener('click', loadModel);
+  /* ---------------- 기본 모델 링크 복사 ----------------
+   ★★★ 여기에 실제 Teachable Machine 링크를 넣어주세요 ★★★ */
+const PRESET_MODEL_URLS = {
+  notebook: 'https://teachablemachine.withgoogle.com/models/3WtjtzxBX/',
+  pc:       'https://teachablemachine.withgoogle.com/models/EwdhSWZW8/'
+};
+
+function copyPresetUrl(key){
+  const url = PRESET_MODEL_URLS[key];
+  const labelKo = key === 'notebook' ? '노트북' : 'PC';
+
+  if (navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(url).then(()=>{
+      modelStatusLine.textContent = labelKo + '용 기본 모델 링크가 복사되었습니다. 입력창에 붙여넣어 주세요.';
+      modelStatusLine.className = 'model-status-line ok';
+    }).catch(()=>{
+      // 복사 실패 시 입력창에 바로 채워줌
+      modelUrlInput.value = url;
+      modelStatusLine.textContent = '클립보드 복사에 실패하여 입력창에 바로 채워넣었습니다.';
+      modelStatusLine.className = 'model-status-line ok';
+    });
+  } else {
+    // navigator.clipboard 미지원 브라우저 대비
+    modelUrlInput.value = url;
+    modelStatusLine.textContent = labelKo + '용 기본 모델 링크를 입력창에 채워넣었습니다.';
+    modelStatusLine.className = 'model-status-line ok';
+  }
+}
+
+document.getElementById('btn-preset-notebook').addEventListener('click', ()=> copyPresetUrl('notebook'));
+document.getElementById('btn-preset-pc').addEventListener('click', ()=> copyPresetUrl('pc'));
 
   /* ---------------- PIP 곰 이미지 ----------------
      ★★★ 곰 이미지를 여기에 연결하세요 ★★★
